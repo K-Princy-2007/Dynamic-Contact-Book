@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamic Contact Book</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      background: rgba(0,0,0,0.7);
+      padding: 20px;
+      border-radius: 12px;
+      width: 500px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
+    h1 {
+      text-align: center;
+      color: #00e5ff;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 6px;
+      border: none;
+      background: #2c2c54;
+      color: #fff;
+    }
+    button {
+      background: #ff4081;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 5px 0;
+    }
+    button:hover {
+      background: #f50057;
+    }
+    .contact {
+      background: #222;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .contact span {
+      display: block;
+    }
+    .actions button {
+      margin-left: 5px;
+      background: #00e5ff;
+      color: #000;
+    }
+    .actions button:hover {
+      background: #00bcd4;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📒 Dynamic Contact Book</h1>
+    <input type="text" id="name" placeholder="Name">
+    <input type="text" id="phone" placeholder="Phone">
+    <input type="email" id="email" placeholder="Email">
+    <button onclick="addContact()">Add Contact</button>
+    <input type="text" id="search" placeholder="Search contacts..." oninput="displayContacts()">
+    <div id="contacts"></div>
+  </div>
+
+  <script>
+    let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+
+    function addContact() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!name || !phone || !email) return alert("Please fill all fields!");
+
+      contacts.push({ name, phone, email });
+      localStorage.setItem('contacts', JSON.stringify(contacts));
+      clearInputs();
+      displayContacts();
+    }
+
+    function clearInputs() {
+      document.getElementById('name').value = '';
+      document.getElementById('phone').value = '';
+      document.getElementById('email').value = '';
+    }
+
+    function displayContacts() {
+      const search = document.getElementById('search').value.toLowerCase();
+      const contactsDiv = document.getElementById('contacts');
+      contactsDiv.innerHTML = '';
+
+      contacts.filter(c => 
+        c.name.toLowerCase().includes(search) || 
+        c.phone.includes(search) || 
+        c.email.toLowerCase().includes(search)
+      ).forEach((c, index) => {
+        const div = document.createElement('div');
+        div.className = 'contact';
+        div.innerHTML = `
+          <div>
+            <span><strong>${c.name}</strong></span>
+            <span>${c.phone}</span>
+            <span>${c.email}</span>
+          </div>
+          <div class="actions">
+            <button onclick="editContact(${index})">Edit</button>
+            <button onclick="deleteContact(${index})">Delete</button>
+          </div>
+        `;
+        contactsDiv.appendChild(div);
+      });
+    }
+
+    function editContact(index) {
+      const c = contacts[index];
+      document.getElementById('name').value = c.name;
+      document.getElementById('phone').value = c.phone;
+      document.getElementById('email').value = c.email;
+      deleteContact(index);
+    }
+
+    function deleteContact(index) {
+      contacts.splice(index, 1);
+      localStorage.setItem('contacts', JSON.stringify(contacts));
+      displayContacts();
+    }
+
+    displayContacts();
+  </script>
+</body>
+</html>
